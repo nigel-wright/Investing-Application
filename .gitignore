@@ -1,0 +1,8 @@
+# enviroments
+.venv/
+
+# python related files
+__pycache__/
+
+# javascript
+node_modules/
