@@ -29,21 +29,32 @@ def process_stock_data(data):
         
         # Handle multi-index columns if present
         if isinstance(data.columns, pd.MultiIndex):
-            data.columns = [
-                '_'.join(col) if isinstance(col, tuple) else col 
-                for col in data.columns
-            ]
-        
+            clean_columns = []
+        for col in data.columns:
+            if isinstance(col, tuple):
+                # Remove the ticker suffix and clean up the name
+                metric = col[0].replace(' ', '')  # Remove spaces
+                clean_columns.append(metric)
+            else:
+                clean_columns.append('Date')
+        data.columns = clean_columns
+    
         # Convert to records and handle NaN values
         records = []
         for record in data.to_dict(orient='records'):
             processed_record = {}
             for key, value in record.items():
-                processed_record[key] = value if pd.notnull(value) else None
+                # Convert numpy/pandas types to Python native types
+                if pd.notnull(value):
+                    if isinstance(value, (np.integer, np.floating)):
+                        processed_record[key] = float(value)
+                    else:
+                        processed_record[key] = str(value)
+                else:
+                    processed_record[key] = None
             records.append(processed_record)
             
         return records
-      
 
 if __name__ == '__main__': 
       pass
